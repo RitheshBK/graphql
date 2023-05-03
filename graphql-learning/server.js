@@ -99,6 +99,18 @@ const RootQueryType = new GraphQLObjectType({
     name: 'Query',
     description: 'Root Query',
     fields: () => ({
+        book: {
+          type: GraphQLInt,
+          description: 'A single Book Information',
+          args: {
+            id: {
+              type: GraphQLInt,
+            }
+          },
+          resolve: (parent,args) => {
+            return books.find(book => books.id === args.id )
+          }
+        },
         books: {
             type: new GraphQLList(BookType),
             description: 'List of all Books',
@@ -133,7 +145,19 @@ const AuthorType = new GraphQLObjectType({
     description: 'This Represents the Author of the book',
     fields: () => ({
         id: {type: GraphQLNonNull(GraphQLInt) },
-        name: {type: GraphQLNonNull(GraphQLString) }
+        name: {type: GraphQLNonNull(GraphQLString) },
+        books: {
+          type: new GraphQLList(BookType),
+          resolve: (author) => {
+            return books.filter(books => books.authorId === author.id)
+          }
+        }
+        // books: {
+        //     type: new GraphQLList(BookType),
+        //     resolve: (books) => {
+        //         return books.find(books => books.authorId === author.id)
+        //     }
+        // }
     }),
 })
 
@@ -154,3 +178,22 @@ app.use('/graphql', graphqlHTTP({
 app.listen(5000,()=> {
     console.log("Server is running on port 5000");
 });
+
+/***
+ * 
+ * {
+  authors {
+    id
+    name
+    books {
+      name
+      id
+      authorId
+    }
+  }
+}
+This is the one you are passing the query
+ * 
+ * 
+ * 
+ */
